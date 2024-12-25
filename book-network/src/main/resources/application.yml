@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 50MB
+springdoc:
+  default-produces-media-type: application/json
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: beans,loggers,metrics,health,info,readiness  # Expose specific Spring Boot Actuator endpoints for monitoring
