@@ -1,0 +1,3 @@
+[submodule "book-network"]
+	path = book-network
+	url = https://github.com/edsonwade/book-social-network
