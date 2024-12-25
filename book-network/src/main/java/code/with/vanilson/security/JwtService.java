@@ -19,9 +19,9 @@ import java.util.function.Function;
 @SuppressWarnings("all")
 public class JwtService {
 
-    @Value("${spring.application.security.jwt.secret-key}")
+    @Value("${application.security.jwt.secret-key}")
     private String secretKey;
-    @Value("${spring.application.security.jwt.expiration-time}")
+    @Value("${application.security.jwt.expiration-time}")
     private long jwtExpirationInMs;
 
     /**

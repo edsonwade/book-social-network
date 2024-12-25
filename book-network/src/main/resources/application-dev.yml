@@ -1,10 +1,10 @@
 # Set the active profile to 'dev' for development
 spring:
   datasource:
-    driver-class-name: org.postgresql.Driver   # Set the driver class for PostgreSQL
     url: jdbc:postgresql://localhost:5432/book_network_api  # Make sure this is correct and the DB exists
     username: postgres  # Set the username for the database
     password: Janina1.    # Set the password for the database
+    driver-class-name: org.postgresql.Driver   # Set the driver class for PostgreSQL
 
   jpa:
     hibernate:
@@ -39,13 +39,9 @@ spring:
           timeout: 3000
           writetimeout: 5000
 
-  application:
-    security:
-      jwt:
-        secret-key: mXd104lCUWYoQqR8EU+z2lHHJUso3JRM8zoWcry4BUM=
-        expiration-time: 86400000  # 24 hours in milliseconds
-
-
-
-
+application:
+  security:
+    jwt:
+      secret-key: mXd104lCUWYoQqR8EU+z2lHHJUso3JRM8zoWcry4BUM=
+      expiration-time: 86400000  # 24 hours in milliseconds
 
