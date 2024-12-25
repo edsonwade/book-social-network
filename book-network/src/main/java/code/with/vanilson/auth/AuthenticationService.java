@@ -1,6 +1,5 @@
 package code.with.vanilson.auth;
 
-
 import code.with.vanilson.email.EmailService;
 import code.with.vanilson.email.EmailTemplateName;
 import code.with.vanilson.role.RoleRepository;
@@ -44,7 +43,7 @@ public class AuthenticationService {
      */
 
     public void register(RegistrationRequest request) throws MessagingException {
-        var userRole = roleRepository.findByName("USER")
+        var userRole = roleRepository.findByName(USER_ROLE_NAME)
                 // todo - better exception handling
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
         var user = User.builder()
