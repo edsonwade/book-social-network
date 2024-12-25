@@ -24,30 +24,21 @@ jobs:
           architecture: x64
 
 
+      # Step 3: Cache Maven dependencies
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('book-network/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-            - name: Build with Maven
-              run: mvn clean install -DskipTests
-
-            - name: Run tests with Maven
-              run: mvn test -Dspring.profiles.active=dev,test
-
-            - name: Deploy (if required)
-              run: |
-                echo "Deploy steps here if needed"
-
-      # Run Maven build and install (in the book-network subdirectory)
+        # Step 4: Run Maven build and install
       - name: Build with Maven
         run: mvn clean install -DskipTests
-        working-directory: ./book-network  # Specify the working directory
+        working-directory: ./book-network  # Specify the working directory for Maven (the submodule)
 
-      # Run tests using Maven (in the book-network subdirectory)
+        # Step 5: Run Maven tests
       - name: Run tests with Maven
         run: mvn test
-        working-directory: ./book-network  # Specify the working directory
+        working-directory: ./book-network  # Specify the working directory for Maven (the submodule)
