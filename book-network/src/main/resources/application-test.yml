@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/book_network_api  # Make sure this is correct and the DB exists
     username: postgres
-    password: Janina1.
+    password: password
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -44,4 +44,9 @@ application:
       secret-key: mXd104lCUWYoQqR8EU+z2lHHJUso3JRM8zoWcry4BUM=
       expiration-time: 86400000  # 24 hours in milliseconds
 server:
-  port: 8088
+  port: 8080
+
+
+#-Dspring:
+#  profiles:
+#    active=test:
