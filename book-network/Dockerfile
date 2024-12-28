@@ -18,14 +18,12 @@ RUN mvn package -DskipTests
 #########################################
 FROM openjdk:17
 
-# Set environment variables (allow for dynamic port configuration)
-ENV SERVER_PORT=${SERVER_PORT:-8088}
-
 # Copy the built JAR file from the build stage to the final image
 COPY --from=builder /app/target/book-network-0.0.1-SNAPSHOT.jar /book-network-0.0.1-SNAPSHOT.jar
 
+
 # Expose the port that the application will run on
-EXPOSE ${SERVER_PORT}
+EXPOSE 8088
 
 # Command to run the application
 ENTRYPOINT ["java", "-jar", "/book-network-0.0.1-SNAPSHOT.jar"]

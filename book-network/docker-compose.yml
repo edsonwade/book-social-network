@@ -3,7 +3,7 @@ services:
     image: postgres
     container_name: postgres-sql-bsn
     ports:
-      - "5432:5432"
+      - "5433:5432"  # Changed the host port to 5433, but still uses 5432 in the container
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -11,15 +11,17 @@ services:
       PGDATA: /var/lib/postgresql/data
     volumes:
       - postgres:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql  # Mount the init-db.sql script here
     networks:
       - boot_social_network
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "user", "-d", "mydb" ]
+      test: [ "CMD", "pg_isready", "-U", "root", "-d", "book_network_api" ]
       interval: 30s
       retries: 3
       start_period: 5s
       timeout: 10s
+
   mail-dev:
     container_name: mail-dev-bsn
     image: maildev/maildev
@@ -29,7 +31,6 @@ services:
     networks:
       - boot_social_network
 
-
   boot-social-network:
     image: boot-social-network
     container_name: boot-social-network
@@ -37,67 +38,57 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8082:8082"
-      - "8083:8083"
-      - "8084:8084"
+      - "8088:8088"
     depends_on:
       - postgres
     networks:
       - boot_social_network
     environment:
-
-      - SPRING_PROFILES_ACTIVE: docker #active spring profile
-      - SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/book_network_api
-      - SPRING_DATASOURCE_USERNAME: root
-      - SPRING_DATASOURCE_PASSWORD: root
-      - SPRING_JPA_HIBERNATE_DDL_AUTO: none
-      - SPRING_JPA_SHOW_SQL: true
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
-      - SPRING_SQL_INIT_MODE: never
-      - SPRING_SECURITY_USER_NAME: vani
-      - SPRING_SECURITY_USER_PASSWORD: 123
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: beans,loggers,metrics,health,info,readiness
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/book_network_api
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+      SPRING_SQL_INIT_MODE: never
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: beans,loggers,metrics,health,info,readiness
+      APPLICATION_SECURITY_JWT_SECRET_KEY: ${APPLICATION_SECURITY_JWT_SECRET_KEY}
+      APPLICATION_SECURITY_JWT_EXPIRATION_TIME: 86400000
     volumes:
       - .:/book-network
 
-    # Prometheus
-    prometheus:
-      image: prom/prometheus:latest
-      container_name: prometheus
-      volumes:
-        - prometheus-data:/prometheus  # Volume for Prometheus data persistence
-        - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Prometheus config
-      ports:
-        - "9090:9090"  # Expose port 9090 for Prometheus
-      networks:
-        - app-network
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - prometheus-data:/prometheus  # Volume for Prometheus data persistence
+    ports:
+      - "9090:9090"  # Expose port 9090 for Prometheus
+    networks:
+      - boot_social_network
 
-    # Grafana
-    grafana:
-      image: grafana/grafana:latest
-      container_name: grafana
-      environment:
-        GF_SECURITY_ADMIN_PASSWORD: admin  # Default admin password for Grafana
-      ports:
-        - "3000:3000"  # Expose port 3000 for Grafana
-      networks:
-        - app-network
-      depends_on:
-        - prometheus
-      volumes:
-        - grafana-data:/var/lib/grafana  # Volume for Grafana data persistence
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin  # Default admin password for Grafana
+    ports:
+      - "3000:3000"  # Expose port 3000 for Grafana
+    networks:
+      - boot_social_network
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana  # Volume for Grafana data persistence
 
 networks:
   boot_social_network:
     driver: bridge  # Create a bridge network for service communication
 
-
 volumes:
   postgres:
-    driver: local  # Volume for boot-social-network persistence
+    driver: local  # Volume for PostgreSQL persistence
   prometheus-data:
-    driver: local  # Volume for boot-social-network persistence
+    driver: local  # Volume for Prometheus data persistence
   grafana-data:
-    driver: local  # Volume for boot-social-network persistence
-  boot-social-network:
-    driver: local  # Volume for boot-social-network persistence
+    driver: local  # Volume for Grafana data persistence
