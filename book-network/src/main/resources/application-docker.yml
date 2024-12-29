@@ -16,6 +16,22 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  mail:
+    host: mail-dev-bsn
+    port: 1025
+    username: ali
+    password: ali
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: true
+        starttls:
+          enabled: true
+        connectiontimeout: 10000  # Increase timeout
+        timeout: 10000           # Increase read timeout
+        writetimeout: 10000      # Increase write timeout
+
 management:
   endpoints:
     web:

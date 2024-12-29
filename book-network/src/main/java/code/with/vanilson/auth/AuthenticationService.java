@@ -18,6 +18,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static code.with.vanilson.email.EmailTemplateName.*;
 import static code.with.vanilson.util.constants.Constant.*;
 
 @Service
@@ -64,7 +65,7 @@ public class AuthenticationService {
             logger.info("Generating activation token for user: {}", user.getEmail());
             var newToken = generateAndSaveActivationToken(user);
             logger.info("Sending validation email to: {}", user.getEmail());
-            emailService.send(user.getEmail(), user.fullName(), EmailTemplateName.ACTIVATION_ACCOUNT,
+            emailService.sendEmail(user.getEmail(), user.fullName(), "activate_account",
                     ACTIVATION_URL, newToken, "Account Activation");
             logger.info("Validation email sent to {}", user.getEmail());
         } catch (MessagingException e) {
