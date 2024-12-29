@@ -30,9 +30,9 @@ spring:
           trust: "*"
           auth: false  # MailHog and FakeSMTP typically do not require authentication
           starttls.enable: false  # Disable StartTLS for local SMTP servers like MailHog
-          connectiontimeout: 5000
-          timeout: 3000
-          writetimeout: 5000
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
 
   sql:
     init:

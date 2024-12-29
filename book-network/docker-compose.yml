@@ -28,6 +28,10 @@ services:
     ports:
       - "1080:1080"
       - "1025:1025"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
     networks:
       - boot_social_network
 
@@ -41,6 +45,7 @@ services:
       - "8088:8088"
     depends_on:
       - postgres
+      - mail-dev
     networks:
       - boot_social_network
     environment:

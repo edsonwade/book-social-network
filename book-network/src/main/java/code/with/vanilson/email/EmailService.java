@@ -3,6 +3,7 @@ package code.with.vanilson.email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,15 +17,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.springframework.mail.javamail.MimeMessageHelper.MULTIPART_MODE_MIXED;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EmailService {
-
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-
     private final JavaMailSender mailSender;
-    private final SpringTemplateEngine engine;
+    private final SpringTemplateEngine templateEngine;
 
     /**
      * Sends an email asynchronously to the specified recipient with an activation link and token.
@@ -52,39 +53,42 @@ public class EmailService {
      * @throws MessagingException If there is an error while composing or sending the email.
      */
     @Async
-    public void send(String to,
-                     String username,
-                     EmailTemplateName emailTemplate,
-                     String confirmationUrl,
-                     String activationCode,
-                     String subject) throws MessagingException {
+    public void sendEmail(
+            String to,
+            String username,
+            String emailTemplate,
+            String confirmationUrl,
+            String activationCode,
+            String subject
+    ) throws MessagingException {
+        String templateName = emailTemplate == null ? "confirm-email" : emailTemplate;
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(
+                mimeMessage,
+                MULTIPART_MODE_MIXED,
+                UTF_8.name()
+        );
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("username", username);
+        properties.put("confirmationUrl", confirmationUrl);
+        properties.put("activation_code", activationCode);
 
-        try {
-            var templateName = emailTemplate == null ? "confirm-email" : emailTemplate.name();
+        Context context = new Context();
+        context.setVariables(properties);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED, UTF_8.name());
-            Map<String, Object> properties = new HashMap<>();
-            properties.put("username", username);
-            properties.put("confirmationUrl", confirmationUrl);
-            properties.put("activationCode", activationCode);
+        helper.setFrom("test@localdomain.com");
+        helper.setTo(to);
+        helper.setSubject(subject);
 
-            var context = new Context();
-            context.setVariables(properties);
+        // Log the template path manually
+        String path = "src/main/resources/templates/" + templateName + ".html";
+        logger.info("Looking for template at: {}", path);
 
-            helper.setFrom("vanilsonmuhongo@outlook.com");
-            helper.setTo(to);
-            helper.setSubject(subject);
+        // Process the template
+        String template = templateEngine.process(templateName, context);
 
-            String template = engine.process(templateName, context);
-            helper.setText(template, true);
+        helper.setText(template, true);
 
-            mailSender.send(message);
-            logger.info("Email sent to {}", to);
-        } catch (MessagingException e) {
-            logger.error("Failed to send email to {}", to, e);
-            throw e;
-        }
+        mailSender.send(mimeMessage);
     }
 }

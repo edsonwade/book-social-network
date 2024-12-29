@@ -7,8 +7,11 @@ spring:
 springdoc:
   default-produces-media-type: application/json
 
-
   thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
     cache: false
 
 

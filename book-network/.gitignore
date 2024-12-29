@@ -1,5 +1,7 @@
 # Ignore .env file (make sure it's not tracked by Git)
 .env
+data
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
